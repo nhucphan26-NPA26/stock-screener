@@ -119,21 +119,20 @@ for symbol in all_symbols:
             cond_breakout_or_tight = (latest['volume'] >= 1.2 * latest['Vol_MA20']) or (abs(latest['close'] - prev['close']) / prev['close'] < 0.015)
 
             if cond_vol and cond_trend and cond_breakout_or_tight:
-                qualified_stocks.append({
-                    "ticker": symbol,
-                    "price": float(latest['close']),
-                    "prev_price": float(prev['close']),
-                    "volume": int(latest['volume']),
-                    "vol_ma20": int(latest['Vol_MA20']),
-                    "ma10": float(latest['MA10']),
-                    "ma50": float(latest['MA50'])
-                })
-        except Exception:
-            continue
+            qualified_stocks.append({
+                "ticker": symbol,
+                "price": float(latest['close']),
+                "prev_price": float(prev['close']),
+                "volume": int(latest['volume']),
+                "vol_ma20": int(latest['Vol_MA20']),
+                "ma10": float(latest['MA10']),
+                "ma50": float(latest['MA50'])
+            })
+    except Exception:
+        continue
 
-    print(f"Số mã đạt tiêu chí lọc thô: {len(qualified_stocks)}")
-    return qualified_stocks
-
+print(f"Số mã đạt tiêu chí lọc thô: {len(qualified_stocks)}")
+return qualified_stocks
 def analyze_and_select_top10(market_data):
     """Gửi dữ liệu đã lọc thô sang Gemini để chọn ra TOP 10 mã VSA/Wyckoff tốt nhất"""
     genai.configure(api_key=GEMINI_KEY)
