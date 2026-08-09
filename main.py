@@ -20,15 +20,10 @@ import google.generativeai as genai
 from datetime import datetime, timedelta
 
 # Bây giờ gọi vnstock3 sẽ không bị vướng lỗi đồ thị nữa
-from vnstock3.explorer.vnd.listing import Listing
-from vnstock3.explorer.vnd.quote import Quote
+from vnstock3.explorer.tcbs.listing import Listing
+from vnstock3.explorer.tcbs.quote import Quote
 
 # 1. Khai báo các khóa bảo mật
-GEMINI_KEY = os.environ.get("GEMINI_API_KEY")
-TELEGRAM_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
-TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
-
-# Lấy giá trị thật từ GitHub Actions Secrets (đặt tên biến, KHÔNG dán giá trị thật ở đây)
 GEMINI_KEY = os.environ.get("AQ.Ab8RN6IsgDTXPD6d6JmzPo9NBvjfDE-SGcZUHHliYbdCdgqH5A")
 TELEGRAM_TOKEN = os.environ.get("8849020001:AAEjRXt00WK64wMxVO9kV_xL3ymmzU3Tr8E")
 TELEGRAM_CHAT_ID = os.environ.get("6078316051")
