@@ -2,9 +2,13 @@ import os
 import requests
 import pandas as pd
 import google.generativeai as genai
-from vnstock3.explorer.vci import Quote
+from datetime import datetime, timedelta
 
-# 1. Khai báo các khóa bảo mật từ Environment Variables
+# Nạp thư viện lấy danh sách mã và lấy giá từ nguồn VND (không nạp biểu đồ)
+from vnstock3.explorer.vnd.listing import Listing
+from vnstock3.explorer.vnd.quote import Quote
+
+# 1. Khai báo các khóa bảo mật từ Environment Variables (Chỉ gọi TÊN BIẾN)
 GEMINI_KEY = os.environ.get("AQ.Ab8RN6IsgDTXPD6d6JmzPo9NBvjfDE-SGcZUHHliYbdCdgqH5A")
 TELEGRAM_TOKEN = os.environ.get("8849020001:AAEjRXt00WK64wMxVO9kV_xL3ymmzU3Tr8E")
 TELEGRAM_CHAT_ID = os.environ.get("6078316051")
@@ -12,8 +16,7 @@ TELEGRAM_CHAT_ID = os.environ.get("6078316051")
 def get_all_symbols():
     """Lấy toàn bộ danh sách cổ phiếu đang niêm yết trên thị trường"""
     try:
-        stock_listing = Vnstock().stock(symbol='SSI', source='VND').listing.symbols_by_group('ALL')
-        # Lọc bỏ các mã quỹ ETF, chứng quyền hoặc mã không thuộc HOSE/HNX nếu cần
+        stock_listing = Listing('SSI').symbols_by_group('ALL')
         symbols = [s for s in stock_listing if len(s) == 3]
         print(f"Tổng số mã thu thập được: {len(symbols)}")
         return symbols
@@ -29,8 +32,9 @@ def scan_full_market():
 
     for symbol in all_symbols:
         try:
-            stock = Vnstock().stock(symbol=symbol, source='VND')
-            df = stock.quote.history(start='2026-06-01', end='2026-08-09')
+          today = datetime.now().strftime('%Y-%m-%d')
+            start_date = (datetime.now() - timedelta(days=90)).strftime('%Y-%m-%d')
+            df = Quote(symbol).history(start=start_date, end=today)
             
             # Cần tối thiểu 50 phiên dữ liệu để tính các đường MA
             if len(df) < 50:
