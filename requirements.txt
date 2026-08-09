@@ -2,3 +2,4 @@ vnstock3
 google-generativeai
 requests
 pandas
+squarify
