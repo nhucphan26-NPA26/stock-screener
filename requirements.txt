@@ -1,8 +1,5 @@
 vnstock3
-vnstock_ezchart
 google-generativeai
 requests
 pandas
-squarify
-wordcloud
-matplotlib
+urllib3
