@@ -4,11 +4,10 @@ import pandas as pd
 import google.generativeai as genai
 from datetime import datetime, timedelta
 
-# Nạp thư viện lấy danh sách mã và lấy giá từ nguồn VND (không nạp biểu đồ)
 from vnstock3.explorer.vnd.listing import Listing
 from vnstock3.explorer.vnd.quote import Quote
 
-# 1. Khai báo các khóa bảo mật từ Environment Variables (Chỉ gọi TÊN BIẾN)
+# Lấy giá trị thật từ GitHub Actions Secrets (đặt tên biến, KHÔNG dán giá trị thật ở đây)
 GEMINI_KEY = os.environ.get("AQ.Ab8RN6IsgDTXPD6d6JmzPo9NBvjfDE-SGcZUHHliYbdCdgqH5A")
 TELEGRAM_TOKEN = os.environ.get("8849020001:AAEjRXt00WK64wMxVO9kV_xL3ymmzU3Tr8E")
 TELEGRAM_CHAT_ID = os.environ.get("6078316051")
@@ -22,7 +21,6 @@ def get_all_symbols():
         return symbols
     except Exception as e:
         print(f"Lỗi lấy danh sách mã: {e}")
-        # Danh mục dự phòng thuộc các ngành trọng điểm nếu lỗi API lấy danh sách
         return ["SSI", "SHS", "HPG", "VND", "DIG", "GVR", "SHB", "CII", "VIX", "SMC", "MWG", "FPT", "TCB", "MBB", "DXG"]
 
 def scan_full_market():
@@ -32,15 +30,13 @@ def scan_full_market():
 
     for symbol in all_symbols:
         try:
-          today = datetime.now().strftime('%Y-%m-%d')
-          start_date = (datetime.now() - timedelta(days=90)).strftime('%Y-%m-%d')
-          df = Quote(symbol).history(start=start_date,end=today)
-            
-            # Cần tối thiểu 50 phiên dữ liệu để tính các đường MA
-            if len(df) < 50:
-            continue
+            today = datetime.now().strftime('%Y-%m-%d')
+            start_date = (datetime.now() - timedelta(days=90)).strftime('%Y-%m-%d')
+            df = Quote(symbol).history(start=start_date, end=today)
 
-            # Tính toán các chỉ báo cơ bản
+            if len(df) < 50:
+                continue
+
             df['MA10'] = df['close'].rolling(window=10).mean()
             df['MA20'] = df['close'].rolling(window=20).mean()
             df['MA50'] = df['close'].rolling(window=50).mean()
@@ -49,13 +45,9 @@ def scan_full_market():
             latest = df.iloc[-1]
             prev = df.iloc[-2]
 
-            # Bộ lọc điều kiện cần (Lọc thô):
-            # 1. Thanh khoản tốt (Vol > 100,000 cổ/phiên)
-            # 2. Giá nằm trên MA10 và MA50 (Cấu trúc Uptrend)
-            # 3. Khối lượng phiên gần nhất đột biến (Vol > 1.2 * Vol_MA20) hoặc Giá siết nền biến động hẹp
             cond_vol = latest['volume'] > 100000
             cond_trend = (latest['close'] >= latest['MA10']) and (latest['close'] >= latest['MA50'])
-            cond_breakout_or_tight = (latest['volume'] >= 1.2 * latest['Vol_MA20']) or (abs(latest['close'] - prev['close'])/prev['close'] < 0.015)
+            cond_breakout_or_tight = (latest['volume'] >= 1.2 * latest['Vol_MA20']) or (abs(latest['close'] - prev['close']) / prev['close'] < 0.015)
 
             if cond_vol and cond_trend and cond_breakout_or_tight:
                 qualified_stocks.append({
@@ -67,8 +59,8 @@ def scan_full_market():
                     "ma10": float(latest['MA10']),
                     "ma50": float(latest['MA50'])
                 })
-    except Exception:
-        continue
+        except Exception:
+            continue
 
     print(f"Số mã đạt tiêu chí lọc thô: {len(qualified_stocks)}")
     return qualified_stocks
@@ -76,7 +68,7 @@ def scan_full_market():
 def analyze_and_select_top10(market_data):
     """Gửi dữ liệu đã lọc thô sang Gemini để chọn ra TOP 10 mã VSA/Wyckoff tốt nhất"""
     genai.configure(api_key=GEMINI_KEY)
-    model = genai.GenerativeModel('gemini-1.5-flash')
+    model = genai.GenerativeModel('gemini-1.5-pro')
 
     prompt = f"""
     BẠN LÀ CHUYÊN GIA VSA / WYCKOFF HÀNG ĐẦU.
