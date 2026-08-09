@@ -20,7 +20,6 @@ import google.generativeai as genai
 from datetime import datetime, timedelta
 
 # Bây giờ gọi vnstock3 sẽ không bị vướng lỗi đồ thị nữa
-from vnstock3.explorer.tcbs.listing import Listing
 from vnstock3.explorer.tcbs.quote import Quote
 
 # 1. Khai báo các khóa bảo mật
@@ -29,15 +28,17 @@ TELEGRAM_TOKEN = os.environ.get("8849020001:AAEjRXt00WK64wMxVO9kV_xL3ymmzU3Tr8E"
 TELEGRAM_CHAT_ID = os.environ.get("6078316051")
 
 def get_all_symbols():
-    """Lấy toàn bộ danh sách cổ phiếu đang niêm yết trên thị trường"""
-    try:
-        stock_listing = Listing('SSI').symbols_by_group('ALL')
-        symbols = [s for s in stock_listing if len(s) == 3]
-        print(f"Tổng số mã thu thập được: {len(symbols)}")
-        return symbols
-    except Exception as e:
-        print(f"Lỗi lấy danh sách mã: {e}")
-        return ["SSI", "SHS", "HPG", "VND", "DIG", "GVR", "SHB", "CII", "VIX", "SMC", "MWG", "FPT", "TCB", "MBB", "DXG"]
+    """Danh sách Top 80 cổ phiếu thanh khoản và tiềm năng nhất thị trường (Chống khóa IP, tối ưu tốc độ)"""
+    return [
+        "SSI", "VND", "VCI", "HCM", "SHS", "VIX", "MBS", "FTS", "BSI", "CTS",
+        "HPG", "HSG", "NKG", "SMC", "VGS",
+        "VCB", "BID", "CTG", "TCB", "MBB", "VPB", "STB", "ACB", "HDB", "SHB", "VIB", "LPB", "MSB", "OCB", "EIB",
+        "VHM", "VIC", "VRE", "NVL", "DIG", "DXG", "PDR", "KDH", "NLG", "CEO", "CII", "HDG",
+        "KBC", "IDC", "SZC", "VGC", "VCG", "LCG", "HHV", "CTD", "HBC", "FCN",
+        "MWG", "PNJ", "MSN", "VNM", "SAB", "DGW", "FRT", "PET",
+        "FPT", "GVR", "DGC", "CSV", "REE", "POW", "GAS", "PLX", "PVD", "PVS", "BSR",
+        "GMD", "HAH", "VHC", "ANV", "ASM", "IDI", "GIL", "TNG", "VGT", "PC1", "BCG"
+    ]
 
 def scan_full_market():
     """Quét dữ liệu giá/volume của toàn bộ thị trường và lọc thô bằng tiêu chí Kỹ thuật"""
