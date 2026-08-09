@@ -1,11 +1,32 @@
+import sys
+from unittest.mock import MagicMock
+
+# --- TIỂU XẢO: Khóa mõm toàn bộ các thư viện đồ thị bị hỏng của vnstock3 ---
+mock_obj = MagicMock()
+sys.modules['vnstock_ezchart'] = mock_obj
+sys.modules['vnstock_ezchart.mplot'] = mock_obj
+sys.modules['vnstock_ezchart.static'] = mock_obj
+sys.modules['vnstock_ezchart.static.chart'] = mock_obj
+sys.modules['IPython'] = mock_obj
+sys.modules['IPython.display'] = mock_obj
+sys.modules['squarify'] = mock_obj
+sys.modules['wordcloud'] = mock_obj
+# -------------------------------------------------------------------------
+
 import os
 import requests
 import pandas as pd
 import google.generativeai as genai
 from datetime import datetime, timedelta
 
+# Bây giờ gọi vnstock3 sẽ không bị vướng lỗi đồ thị nữa
 from vnstock3.explorer.vnd.listing import Listing
 from vnstock3.explorer.vnd.quote import Quote
+
+# 1. Khai báo các khóa bảo mật
+GEMINI_KEY = os.environ.get("GEMINI_API_KEY")
+TELEGRAM_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
+TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 
 # Lấy giá trị thật từ GitHub Actions Secrets (đặt tên biến, KHÔNG dán giá trị thật ở đây)
 GEMINI_KEY = os.environ.get("AQ.Ab8RN6IsgDTXPD6d6JmzPo9NBvjfDE-SGcZUHHliYbdCdgqH5A")
