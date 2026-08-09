@@ -2,7 +2,7 @@ import os
 import requests
 import pandas as pd
 import google.generativeai as genai
-from vnstock3 import Vnstock
+from vnstock3.explorer.vci import Quote
 
 # 1. Khai báo các khóa bảo mật từ Environment Variables
 GEMINI_KEY = os.environ.get("AQ.Ab8RN6IsgDTXPD6d6JmzPo9NBvjfDE-SGcZUHHliYbdCdgqH5A")
