@@ -1,9 +1,6 @@
-vnstock3==3.2.1
-vnstock_ezchart==0.0.3
-ipython
+vnstock3
 google-generativeai
 requests
 pandas
-squarify
-wordcloud
-matplotlib
+urllib3
+ipython
