@@ -38,7 +38,7 @@ def scan_full_market():
             
             # Cần tối thiểu 50 phiên dữ liệu để tính các đường MA
             if len(df) < 50:
-                continue
+            continue
 
             # Tính toán các chỉ báo cơ bản
             df['MA10'] = df['close'].rolling(window=10).mean()
@@ -67,8 +67,8 @@ def scan_full_market():
                     "ma10": float(latest['MA10']),
                     "ma50": float(latest['MA50'])
                 })
-        except Exception:
-            continue
+    except Exception:
+        continue
 
     print(f"Số mã đạt tiêu chí lọc thô: {len(qualified_stocks)}")
     return qualified_stocks
