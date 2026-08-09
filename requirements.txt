@@ -1,5 +1,5 @@
-vnstock3==3.1.7
-vnstock_ezchart==1.0.5
+vnstock3==3.2.1
+vnstock_ezchart==0.0.3
 google-generativeai
 requests
 pandas
