@@ -14,7 +14,11 @@ sys.modules['wordcloud'] = mock_obj
 # -------------------------------------------------------------------------
 
 import os
+import time
 import requests
+import pandas as pd
+import google.generativeai as genai
+from datetime import datetime, timedelta
 import pandas as pd
 import google.generativeai as genai
 from datetime import datetime, timedelta
@@ -45,15 +49,20 @@ def scan_full_market():
     all_symbols = get_all_symbols()
     qualified_stocks = []
 
-    for symbol in all_symbols:
+for symbol in all_symbols:
         try:
+            # Nghỉ 3.5 giây trước khi quét mã tiếp theo để lách giới hạn 20 lần/phút
+            time.sleep(3.5)
+
             today = datetime.now().strftime('%Y-%m-%d')
             start_date = (datetime.now() - timedelta(days=90)).strftime('%Y-%m-%d')
             df = Quote(symbol).history(start=start_date, end=today)
 
+            # Căn tối thiểu 50 phiên dữ liệu để tính các đường MA
             if len(df) < 50:
                 continue
 
+            # Tính toán các chỉ báo cơ bản
             df['MA10'] = df['close'].rolling(window=10).mean()
             df['MA20'] = df['close'].rolling(window=20).mean()
             df['MA50'] = df['close'].rolling(window=50).mean()
