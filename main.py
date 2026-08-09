@@ -34,7 +34,7 @@ def scan_full_market():
         try:
           today = datetime.now().strftime('%Y-%m-%d')
             start_date = (datetime.now() - timedelta(days=90)).strftime('%Y-%m-%d')
-            df = Quote(symbol).history(start=start_date, end=today)
+            df = Quote(symbol).history(start=start_date,end=today)
             
             # Cần tối thiểu 50 phiên dữ liệu để tính các đường MA
             if len(df) < 50:
