@@ -74,7 +74,7 @@ def scan_full_market():
             # Bộ lọc điều kiện cần (Lọc thô):
             cond_vol = latest['volume'] > 100000
             cond_trend = (latest['close'] >= latest['MA10']) and (latest['close'] >= latest['MA50'])
-            cond_breakout_or_tight = (latest['volume'] >= 1.2 * latest['Vol_MA20']) or (abs(latest['close'] - prev['close'])/prev['close'] < 0.015)
+            cond_breakout_or_tight = (latest['volume'] >= 1.2 * latest['Vol_MA20']) or (abs(latest['close'] - prev['close']) / prev['close'] < 0.015)
 
             if cond_vol and cond_trend and cond_breakout_or_tight:
                 qualified_stocks.append({
@@ -91,48 +91,6 @@ def scan_full_market():
 
     print(f"Số mã đạt tiêu chí lọc thô: {len(qualified_stocks)}")
     return qualified_stocks
-
-for symbol in all_symbols:
-        try:
-            # Nghỉ 3.5 giây trước khi quét mã tiếp theo để lách giới hạn 20 lần/phút
-            time.sleep(3.5)
-
-            today = datetime.now().strftime('%Y-%m-%d')
-            start_date = (datetime.now() - timedelta(days=90)).strftime('%Y-%m-%d')
-            df = Quote(symbol).history(start=start_date, end=today)
-
-            # Căn tối thiểu 50 phiên dữ liệu để tính các đường MA
-            if len(df) < 50:
-                continue
-
-            # Tính toán các chỉ báo cơ bản
-            df['MA10'] = df['close'].rolling(window=10).mean()
-            df['MA20'] = df['close'].rolling(window=20).mean()
-            df['MA50'] = df['close'].rolling(window=50).mean()
-            df['Vol_MA20'] = df['volume'].rolling(window=20).mean()
-
-            latest = df.iloc[-1]
-            prev = df.iloc[-2]
-
-            cond_vol = latest['volume'] > 100000
-            cond_trend = (latest['close'] >= latest['MA10']) and (latest['close'] >= latest['MA50'])
-            cond_breakout_or_tight = (latest['volume'] >= 1.2 * latest['Vol_MA20']) or (abs(latest['close'] - prev['close']) / prev['close'] < 0.015)
-
-            if cond_vol and cond_trend and cond_breakout_or_tight:
-            qualified_stocks.append({
-                "ticker": symbol,
-                "price": float(latest['close']),
-                "prev_price": float(prev['close']),
-                "volume": int(latest['volume']),
-                "vol_ma20": int(latest['Vol_MA20']),
-                "ma10": float(latest['MA10']),
-                "ma50": float(latest['MA50'])
-            })
-    except Exception:
-        continue
-
-print(f"Số mã đạt tiêu chí lọc thô: {len(qualified_stocks)}")
-return qualified_stocks
 def analyze_and_select_top10(market_data):
     """Gửi dữ liệu đã lọc thô sang Gemini để chọn ra TOP 10 mã VSA/Wyckoff tốt nhất"""
     genai.configure(api_key=GEMINI_KEY)
