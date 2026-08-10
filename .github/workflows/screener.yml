@@ -1,8 +1,10 @@
 name: Daily Stock Screener
 on:
+  workflow_dispatch: # Vẫn giữ dòng này để lúc nào thích bạn có thể tự bấm chạy tay
   schedule:
-    - cron: '0 0 * * *'
-  workflow_dispatch:
+    # Hẹn giờ chạy lúc 15:30 chiều giờ Việt Nam, từ Thứ 2 đến Thứ 6
+    # (Do máy chủ GitHub dùng múi giờ UTC, nên 15:30 VN = 08:30 UTC)
+    - cron: '30 8 * * 1-5'
 
 jobs:
   run-screener:
