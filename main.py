@@ -119,22 +119,36 @@ def analyze_and_select_top10(market_data):
     return response.text
 
 def send_telegram(text):
-    """Gửi báo cáo kết quả về ứng dụng Telegram"""
-    url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+    import os
+    import requests
+    
+    # Lấy trực tiếp chìa khóa từ hệ thống để tránh bị lệch tên biến
+    bot_token = os.environ.get("TELEGRAM_BOT_TOKEN")
+    chat_id = os.environ.get("TELEGRAM_CHAT_ID")
+    
+    url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
     payload = {
-        "chat_id": TELEGRAM_CHAT_ID,
+        "chat_id": chat_id,
         "text": text,
         "parse_mode": "Markdown"
     }
-    requests.post(url, json=payload)
+    
+    print("Đang gửi tin nhắn sang Telegram...")
+    response = requests.post(url, json=payload)
+    
+    # CHỐT BẮT LỖI: Bắt buộc hiện lỗi đỏ nếu Telegram từ chối
+    if response.status_code != 200:
+        print(f"❌ LỖI TỪ TELEGRAM: {response.text}")
+        raise Exception("Telegram từ chối nhận tin nhắn! Vui lòng đọc lỗi phía trên.")
+    else:
+        print("✅ Đã gửi Telegram thành công!")
 
 if __name__ == "__main__":
     market_data = scan_full_market()
     
-    # CHỐT CHẶN BẢO VỆ: Nếu thị trường xấu (0 mã đạt), báo về Tele và dừng luôn
     if not market_data or len(market_data) == 0:
-        send_telegram("📊 *Báo cáo cuối ngày:* \n\nHôm nay thị trường biến động, không có mã cổ phiếu nào lọt qua bộ lọc VSA. Chúng ta tiếp tục giữ tiền mặt, chờ thời cơ an toàn hơn!")
+        msg = "📊 *Báo cáo cuối ngày:* \n\nHôm nay thị trường biến động, không có mã cổ phiếu nào lọt qua bộ lọc VSA. Chúng ta tiếp tục ôm tiền chờ thời cơ!"
+        send_telegram(msg)
     else:
-        # Nếu có mã lọt lưới, mới bắt đầu gọi AI phân tích
         report = analyze_and_select_top10(market_data)
         send_telegram(report)
