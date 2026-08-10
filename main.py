@@ -94,7 +94,7 @@ def scan_full_market():
 def analyze_and_select_top10(market_data):
     """Gửi dữ liệu đã lọc thô sang Gemini để chọn ra TOP 10 mã VSA/Wyckoff tốt nhất"""
     genai.configure(api_key=GEMINI_KEY)
-    model = genai.GenerativeModel('gemini-1.5-pro')
+    model = genai.GenerativeModel('gemini-1.5-pro-latest')
 
     prompt = f"""
     BẠN LÀ CHUYÊN GIA VSA / WYCKOFF HÀNG ĐẦU.
