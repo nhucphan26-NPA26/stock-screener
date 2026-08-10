@@ -94,7 +94,9 @@ def scan_full_market():
 def analyze_and_select_top10(market_data):
     """Gửi dữ liệu đã lọc thô sang Gemini để chọn ra TOP 10 mã VSA/Wyckoff tốt nhất"""
     genai.configure(api_key=GEMINI_KEY)
-    model = genai.GenerativeModel('gemini-2.5-flash')
+    
+    # Dùng phiên bản 1.5 flash tiêu chuẩn cực kỳ ổn định, tránh mọi lỗi 404 từ Google
+    model = genai.GenerativeModel('gemini-1.5-flash')
 
     prompt = f"""
     BẠN LÀ CHUYÊN GIA VSA / WYCKOFF HÀNG ĐẦU.
@@ -128,5 +130,11 @@ def send_telegram(text):
 
 if __name__ == "__main__":
     market_data = scan_full_market()
-    report = analyze_and_select_top10(market_data)
-    send_telegram(report)
+    
+    # CHỐT CHẶN BẢO VỆ: Nếu thị trường xấu (0 mã đạt), báo về Tele và dừng luôn
+    if not market_data or len(market_data) == 0:
+        send_telegram("📊 *Báo cáo cuối ngày:* \n\nHôm nay thị trường biến động, không có mã cổ phiếu nào lọt qua bộ lọc VSA. Chúng ta tiếp tục giữ tiền mặt, chờ thời cơ an toàn hơn!")
+    else:
+        # Nếu có mã lọt lưới, mới bắt đầu gọi AI phân tích
+        report = analyze_and_select_top10(market_data)
+        send_telegram(report)
